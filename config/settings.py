@@ -126,16 +126,27 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+DEBUG = True
+
+ALLOWED_HOSTS = [
+    '*'
+]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5500",
-    "http://localhost:5500",
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://127.0.0.1:5500",
+#     "http://localhost:5500",
+# ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5500",
     "http://localhost:5500",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "http://192.168.1.125:8080",
 ]
 
 ASGI_APPLICATION = 'config.asgi.application'
