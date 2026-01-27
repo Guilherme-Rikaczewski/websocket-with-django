@@ -2,20 +2,49 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db import IntegrityError
 from django.middleware.csrf import get_token
+import random
+import string
+
+
+def create_group_code():
+    code_str = string.ascii_letters + string.digits
+    code = ''.join(random.choices(code_str, k=6))
+    return code
+
+
+def create_group():
+    group = ''
+    print('OI')
+    try:
+        code = create_group_code()
+        group = Group.objects.get(name=code)
+    except Group.DoesNotExist:
+        try:
+            print(code)
+            new_group = Group.objects.create(
+                name=code
+            )
+            print('TESTE')
+            return new_group
+        except Exception as error:
+            raise error
+
+    return create_group()
 
 
 @api_view(['GET'])
 def csrf_view(request):
     return Response(
-        { 'csrfToken': get_token(request)}
+        {'csrfToken': get_token(request)}
     )
+
 
 @api_view(['POST'])
 def create_user(request):
-    try: 
+    try:
         username = request.data.get('username')
         password = request.data.get('password')
         email = request.data.get('email')
@@ -26,21 +55,24 @@ def create_user(request):
                 status=400
             )
 
-        User.objects.create_user(
+        user = User.objects.create_user(
             username=username,
             password=password,
             email=email
         )
+        print('TESTE222')
+        user.groups.add(create_group())
     except IntegrityError:
         return Response(
             {'error': 'Usuario já existe'},
             status=400
         )
-    
+
     return Response(
         {'message': 'Usuario criado com sucesso'},
         status=201
     )
+
 
 @api_view(['POST'])
 def login_view(request):
@@ -111,11 +143,12 @@ def update_user(request):
 @permission_classes([IsAuthenticated])
 def get_user(request):
     user = request.user
-
+    
     data = {
         'id': user.id,
         'username': user.username,
-        'email': user.email
+        'email': user.email,
+        'room': user.groups.values_list('name')
     }
 
     return Response(

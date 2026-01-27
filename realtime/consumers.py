@@ -1,5 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
+from urllib.parse import parse_qs
 
 
 class AuthenticatedEchoConsumer(AsyncWebsocketConsumer):
@@ -7,11 +8,14 @@ class AuthenticatedEchoConsumer(AsyncWebsocketConsumer):
         print('conect chamado')
         user = self.scope["user"]
 
+        query_string = self.scope.get('query_string', b'').decode('utf-8')
+        query_params = parse_qs(query_string)
+
         if user.is_anonymous:
             await self.close()
             return
 
-        self.group_name = 'global'
+        self.group_name = query_params.get('room', None)[0]
 
         await self.channel_layer.group_add(
             self.group_name,
