@@ -1,6 +1,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from urllib.parse import parse_qs
+from .utils import rgb_generator
 
 
 class AuthenticatedEchoConsumer(AsyncWebsocketConsumer):
@@ -23,6 +24,8 @@ class AuthenticatedEchoConsumer(AsyncWebsocketConsumer):
         )
 
         await self.accept()
+        await self.send_user_joined()
+        
         print(f'WebSocket conectado {user.username}')
 
     async def disconnect(self, code):
@@ -45,8 +48,25 @@ class AuthenticatedEchoConsumer(AsyncWebsocketConsumer):
             }
         )
 
+    # HANDLER
     async def broadcast_message(self, event):
         await self.send(text_data=json.dumps({
             'user': event['user'],
             'data': event['data']
         }))
+
+    async def send_user_joined(self,):
+        user = self.scope['user']
+        r, g, b = rgb_generator()
+        await self.channel_layer.group_send(
+            self.group_name,
+            {
+                'type': 'broadcast_message',
+                'user': user.username,
+                'data': {
+                    'type': 'user_joined',
+                    # retorna uma tupla com valroes aleatorios para (r, g, b)
+                    'color': f'rgb({r},{g},{b})',
+                }
+            }
+        )
