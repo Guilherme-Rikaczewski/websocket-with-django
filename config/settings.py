@@ -146,7 +146,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5500",
     "http://localhost:8080",
     "http://127.0.0.1:8080",
-    "http://192.168.1.125:8080",
+    "http://192.168.1.125:8080", # teste de dominio para rede interna
 ]
 
 ASGI_APPLICATION = 'config.asgi.application'
@@ -155,7 +155,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
+        "BACKEND": "channels.layers.InMemoryChannelLayer", # SOMENTE PARA AMBIENTE DE DEV
         # "BACKEND": "channels_redis.core.RedisChannelLayer",
         # "CONFIG": {
         #     "hosts": [("localhost", 6379)],
